@@ -275,6 +275,39 @@ def plot_categorical_relationship_fin(df, cat_col1, cat_col2, relative_freq=Fals
         plt.show()
 
 # %%
+def plot_pie_charts_by_category(df, category_col, subcategory_col, show_values=False, num_cols=3, relative_freq=True, label_fontsize=12, values_fontsize=12):
+    categories = df[category_col].unique()
+    subcats = df[subcategory_col].unique()
+
+    colour_dict = {'r':'firebrick', 'w':'palegoldenrod'}
+
+    num_categories = len(categories)
+    num_cols = num_cols
+    num_rows = (num_categories + num_cols - 1) // num_cols
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 12))
+    axes = axes.flatten() 
+    
+    for i, category in enumerate(categories):
+        ax = axes[i]
+        
+        subset = df[df[category_col] == category]
+        counts = subset[subcategory_col].value_counts().sort_index()
+        if relative_freq:
+            counts = counts / counts.sum()
+        
+        colour_map = [colour_dict[idx] for idx in counts.index]
+
+        ax.pie(counts, labels=counts.index, autopct='%1.0f%%' if show_values else None, colors=colour_map, startangle=90, textprops={'fontsize': values_fontsize})
+        ax.set_title(category, fontdict={'fontsize':label_fontsize})
+    
+    for j in range(num_categories, len(axes)):
+        fig.delaxes(axes[j])
+    
+    plt.tight_layout()
+    plt.show()
+
+# %%
 def plot_categorical_numerical_relationship(df, categorical_col, numerical_col, show_values=False, measure='mean'):
     # Calcula la medida de tendencia central (mean o median)
     if measure == 'median':
@@ -464,7 +497,7 @@ def plot_grouped_boxplots_together(df, cat_col, num_col, colour_scheme='Blues'):
                 medianprops=medianprops,
                 boxprops=boxprops)
     
-
+    
     
     plt.title(f'Boxplots of {num_col} for {cat_col}')
     plt.xticks(rotation=45)
